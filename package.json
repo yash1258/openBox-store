@@ -1,7 +1,23 @@
 {
-  "name": "open-box",
-  "version": "0.1.0",
-  "private": true,
+  "name": "openbox-store",
+  "version": "1.0.0",
+  "description": "AI-Powered E-commerce Platform for Open-Box & Pre-owned Tech Products",
+  "author": "OpenBox Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/openbox-store.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "nextjs",
+    "typescript",
+    "prisma",
+    "postgresql",
+    "ai",
+    "analytics",
+    "open-source"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +25,8 @@
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "npx tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -39,5 +56,8 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.21.0",
     "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
