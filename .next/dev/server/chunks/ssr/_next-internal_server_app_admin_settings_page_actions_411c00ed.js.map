@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/Agents/open-box/.next-internal/server/app/admin/settings/page/actions.js%20%28server%20actions%20loader%29"],"sourcesContent":["export {$$RSC_SERVER_ACTION_0 as '00abb7a254eded8a6d58e447d316ec8d6edf4b5b00'} from 'ACTIONS_MODULE0'\n"],"names":[],"mappings":";AAAA"}}]
+}

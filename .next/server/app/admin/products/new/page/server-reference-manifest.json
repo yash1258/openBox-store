@@ -1,0 +1,20 @@
+{
+  "node": {
+    "000f90dc9378e18ccd89f772f825d2f04b31a192d2": {
+      "workers": {
+        "app/admin/products/new/page": {
+          "moduleId": 22461,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "src/app/admin/layout.tsx"
+        }
+      },
+      "layer": {
+        "app/admin/products/new/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "src/app/admin/layout.tsx"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(cd /d/Agents/open-box && npm run build 2>&1)",
+      "WebFetch(domain:localhost)",
+      "Bash(curl:*)"
+    ]
+  }
+}
