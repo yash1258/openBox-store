@@ -7,11 +7,22 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { CartProvider } from "@/context/CartContext";
 import HeaderCartButton from "@/components/HeaderCartButton";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { generateMetadata } from "@/lib/seo";
+import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/seo/JsonLd";
 
-export const metadata: Metadata = {
-  title: "OpenBox Store",
-  description: "Quality openbox and used products at great prices",
-};
+export const metadata: Metadata = generateMetadata({
+  title: "OpenBox Store - Premium Pre-owned Tech Products",
+  description:
+    "Discover premium open-box, like-new, and quality used tech products at unbeatable prices. Every item verified for quality. Best deals on iPhones, laptops, and gadgets.",
+  keywords: [
+    "open box",
+    "pre-owned",
+    "refurbished",
+    "used electronics",
+    "iPhone deals",
+    "laptop deals",
+  ],
+});
 
 export default async function RootLayout({
   children,
@@ -130,6 +141,10 @@ export default async function RootLayout({
                 </div>
               </div>
             </footer>
+            
+            {/* SEO Structured Data */}
+            <OrganizationJsonLd />
+            <WebsiteJsonLd />
             
             {/* Analytics Tracker - Invisible tracking component */}
             <AnalyticsTracker />

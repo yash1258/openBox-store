@@ -3,11 +3,48 @@ import { generateWhatsAppLink, generateInquiryMessage } from "@/lib/whatsapp";
 import { Package, ArrowLeft, Share2, MessageCircle, Shield, CheckCircle, Sparkles, Tag, Star, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import AddToCartButton from "@/components/AddToCartButton";
 import { ProductTracker } from "@/components/ProductTracker";
 import { ReviewForm, ReviewList } from "@/components/reviews";
 import { Suspense } from "react";
 import { ProductGridSkeleton } from "@/components/ui/Skeleton";
+import { ProductJsonLd } from "@/components/seo/JsonLd";
+import { generateProductMetadata } from "@/lib/seo";
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: {
+      name: true,
+      description: true,
+      sellingPrice: true,
+      images: true,
+    },
+  });
+
+  if (!product) {
+    return {
+      title: "Product Not Found | OpenBox Store",
+    };
+  }
+
+  const images = JSON.parse(product.images || "[]");
+
+  return generateProductMetadata(
+    product.name,
+    product.description || "",
+    product.sellingPrice,
+    images[0],
+    id
+  );
+}
 
 export default async function ProductPage({
   params,
@@ -56,6 +93,24 @@ export default async function ProductPage({
 
   return (
     <div className="min-h-screen bg-stone-50 pb-24 lg:pb-8">
+      {/* JSON-LD Structured Data for SEO */}
+      <ProductJsonLd
+        product={{
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          sellingPrice: product.sellingPrice,
+          originalPrice: product.originalPrice,
+          images,
+          category: product.category,
+          condition: product.condition,
+          status: product.status,
+        }}
+        seller={{
+          shopName: settings?.shopName,
+          whatsapp: settings?.whatsapp,
+        }}
+      />
       {/* Track product view */}
       <ProductTracker productId={product.id} productName={product.name} />
       
