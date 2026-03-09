@@ -106,7 +106,7 @@ export function getOptimizedImageUrl(
   options: {
     width?: number
     height?: number
-    quality?: number
+    quality?: number | string
     format?: 'auto' | 'webp' | 'jpg' | 'png'
   } = {}
 ): string {
