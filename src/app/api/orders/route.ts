@@ -4,6 +4,7 @@ import { requireApiKey, successResponse, errorResponse } from "@/lib/api-auth";
 import { createOrder, getOrdersBySeller } from "@/lib/order";
 import { orderSchema } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
+import { sendOrderConfirmationEmail } from "@/lib/email/order-emails";
 
 // GET /api/orders - List orders for seller
 export async function GET(request: NextRequest) {
@@ -90,6 +91,13 @@ export async function POST(request: NextRequest) {
       paymentMethod,
       sellerId: firstSeller.id,
     });
+
+    // Send order confirmation email (non-blocking)
+    sendOrderConfirmationEmail({
+      orderId: order.id,
+      customerEmail,
+      customerName,
+    }).catch(console.error);
 
     return successResponse(order, { message: "Order created successfully" });
   } catch (error) {
