@@ -64,6 +64,7 @@ model Product {
   reviews           Review[]
   successStories    SuccessStory[]
   stats             ProductStats?
+  wishlists         Wishlist[]
   
   @@index([status])
   @@index([category])
@@ -194,6 +195,18 @@ model Coupon {
   @@index([code])
   @@index([isActive])
   @@index([endDate])
+}
+
+model Wishlist {
+  id         String   @id @default(cuid())
+  sessionId  String   // Anonymous session ID
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([sessionId, productId])
+  @@index([sessionId])
+  @@index([productId])
 }
 
 model Settings {
