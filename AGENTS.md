@@ -47,19 +47,29 @@ npx prisma generate
 npx prisma db pull
 ```
 
-## Testing Status (Read First)
-- There is no `npm test` script right now.
-- No repo-level Jest/Vitest/Playwright config is present.
-- Use `lint + build + targeted manual checks` as the quality gate.
+## Testing Status (Updated ✓)
+- **Testing Framework:** Vitest (unit/integration) + Playwright (E2E)
+- **Pre-commit:** Husky + lint-staged configured
+- **CI/CD:** GitHub Actions workflow in `.github/workflows/ci.yml`
 
-Primary gate:
+### Test Commands
+```bash
+npm run test              # Run Vitest in watch mode
+npm run test:run          # Run Vitest once (CI)
+npm run test:coverage     # Run tests with coverage report
+npm run test:e2e          # Run Playwright E2E tests
+npm run test:e2e:ui       # Run Playwright with UI
+npm run test:all          # Run unit + E2E tests
+```
+
+### Quality Gate (CI)
 ```bash
 npm run lint
+npm run test:run
 npm run build
 ```
 
-## Running a Single Test (Current Equivalent)
-Since no test framework is configured, run narrow checks.
+## Running a Single Test
 
 ### Lint one file
 ```bash
