@@ -3,25 +3,23 @@ import { createSession } from "@/lib/auth";
 import { successResponse, errorResponse } from "@/lib/api-auth";
 
 // =============================================================================
-// 🚨 DEV LOGIN BYPASS - REMOVE BEFORE PRODUCTION DEPLOYMENT 🚨
+// 🚨 DEV LOGIN BYPASS - ENABLED FOR DEMO SITE 🚨
 // =============================================================================
-// This endpoint allows quick login during development.
-// It is automatically disabled in production (NODE_ENV === 'production').
+// This endpoint allows quick login for the demo site on Vercel.
+// Dev login is ENABLED in production for demo purposes.
 // 
-// TO REMOVE:
-// 1. Delete this file: src/app/api/auth/dev-login/route.ts
-// 2. Delete the dev login button from: src/app/(auth)/login/page.tsx
-// 3. Remove DEV_LOGIN_SECRET from .env
-// 4. Search for "dev-login" and remove all references
+// TO DISABLE FOR PRODUCTION:
+// 1. Add this check back:
+//    if (process.env.NODE_ENV === 'production') {
+//      return errorResponse("Dev login not available in production", "FORBIDDEN", 403);
+//    }
+// 2. Or delete this file entirely
 // =============================================================================
 
-// POST /api/auth/dev-login - Dev-only bypass (development mode only)
+// POST /api/auth/dev-login - Dev bypass (enabled for demo site)
 export async function POST(request: NextRequest) {
   try {
-    // SECURITY: Only allow in development mode - NEVER works in production
-    if (process.env.NODE_ENV === 'production') {
-      return errorResponse("Dev login not available in production", "FORBIDDEN", 403);
-    }
+    // SECURITY: Dev login enabled for demo site on Vercel
 
     // Verify dev secret from environment (prevents accidental usage)
     const body = await request.json();
