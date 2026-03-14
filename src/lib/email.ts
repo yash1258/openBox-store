@@ -1,6 +1,14 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization - only create Resend instance when needed
+let resend: Resend | null = null
+
+function getResend(): Resend {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY || 'dummy-key-for-build')
+  }
+  return resend
+}
 
 export interface EmailOptions {
   to: string | string[]
@@ -14,14 +22,14 @@ export interface EmailOptions {
 export async function sendEmail(options: EmailOptions) {
   const { to, subject, react, html, text, from } = options
 
-  // Don't send emails in development if no API key is set
+  // Don't send emails if no API key is set
   if (!process.env.RESEND_API_KEY) {
     console.log('[Email] Would send email:', { to, subject })
     return { id: 'mock-email-id', success: true }
   }
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: from || process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: Array.isArray(to) ? to : [to],
       subject,
