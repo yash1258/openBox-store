@@ -19,6 +19,14 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  
+  // Skip DB query during build if no DATABASE_URL
+  if (!process.env.DATABASE_URL) {
+    return {
+      title: "Product | OpenBox Store",
+    };
+  }
+  
   const product = await prisma.product.findUnique({
     where: { id },
     select: {

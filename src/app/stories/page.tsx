@@ -21,6 +21,17 @@ interface SuccessStory {
 }
 
 export default async function StoriesPage() {
+  // Skip DB queries during build if no DATABASE_URL
+  if (!process.env.DATABASE_URL) {
+    return (
+      <div className="min-h-screen bg-white pb-20 lg:pb-8">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-stone-500">Loading stories...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Fetch stats
   const totalStories = await prisma.successStory.count({
     where: { published: true },
