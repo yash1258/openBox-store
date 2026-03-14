@@ -3,8 +3,48 @@ import { generateWhatsAppLink, generateInquiryMessage } from "@/lib/whatsapp";
 import { Package, ArrowLeft, Share2, MessageCircle, Shield, CheckCircle, Sparkles, Tag, Star, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import AddToCartButton from "@/components/AddToCartButton";
 import { ProductTracker } from "@/components/ProductTracker";
+import { ReviewForm, ReviewList } from "@/components/reviews";
+import { Suspense } from "react";
+import { ProductGridSkeleton } from "@/components/ui/Skeleton";
+import { ProductJsonLd } from "@/components/seo/JsonLd";
+import { generateProductMetadata } from "@/lib/seo";
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: {
+      name: true,
+      description: true,
+      sellingPrice: true,
+      images: true,
+    },
+  });
+
+  if (!product) {
+    return {
+      title: "Product Not Found | OpenBox Store",
+    };
+  }
+
+  const images = JSON.parse(product.images || "[]");
+
+  return generateProductMetadata(
+    product.name,
+    product.description || "",
+    product.sellingPrice,
+    images[0],
+    id
+  );
+}
 
 export default async function ProductPage({
   params,
@@ -14,6 +54,11 @@ export default async function ProductPage({
   const { id } = await params;
   const product = await prisma.product.findUnique({
     where: { id },
+    include: {
+      reviews: {
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
 
   if (!product) {
@@ -22,6 +67,20 @@ export default async function ProductPage({
 
   const images = JSON.parse(product.images || "[]");
   const settings = await prisma.settings.findFirst();
+
+  // Calculate review stats
+  const reviews = product.reviews || [];
+  const totalReviews = reviews.length;
+  const averageRating = totalReviews > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+    : 0;
+  const ratingDistribution = {
+    5: reviews.filter((r) => r.rating === 5).length,
+    4: reviews.filter((r) => r.rating === 4).length,
+    3: reviews.filter((r) => r.rating === 3).length,
+    2: reviews.filter((r) => r.rating === 2).length,
+    1: reviews.filter((r) => r.rating === 1).length,
+  };
   const whatsappNumber = settings?.whatsapp || "";
   const shopName = settings?.shopName || "OpenBox Store";
 
@@ -34,6 +93,24 @@ export default async function ProductPage({
 
   return (
     <div className="min-h-screen bg-stone-50 pb-24 lg:pb-8">
+      {/* JSON-LD Structured Data for SEO */}
+      <ProductJsonLd
+        product={{
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          sellingPrice: product.sellingPrice,
+          originalPrice: product.originalPrice,
+          images,
+          category: product.category,
+          condition: product.condition,
+          status: product.status,
+        }}
+        seller={{
+          shopName: settings?.shopName,
+          whatsapp: settings?.whatsapp,
+        }}
+      />
       {/* Track product view */}
       <ProductTracker productId={product.id} productName={product.name} />
       
@@ -116,30 +193,40 @@ export default async function ProductPage({
               {product.name}
             </h1>
 
-            {/* Premium Price Card */}
-            <div className="animate-fade-in-up animation-delay-200 premium-card p-5">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-3xl md:text-4xl font-bold text-gradient">
-                  ₹{product.sellingPrice.toLocaleString()}
-                </span>
-                {product.originalPrice && (
-                  <>
-                    <span className="text-lg text-stone-400 line-through">
-                      ₹{product.originalPrice.toLocaleString()}
-                    </span>
-                  </>
-                )}
-              </div>
-              {discount > 0 && (
-                <p className="text-sm text-emerald-600 mt-2 flex items-center gap-1">
-                  <Sparkles className="h-4 w-4" />
-                  You save ₹{(product.originalPrice! - product.sellingPrice).toLocaleString()} ({discount}% off)
-                </p>
+          {/* Premium Price Card */}
+          <div className="animate-fade-in-up animation-delay-200 premium-card p-5">
+            <div className="flex items-baseline gap-3 flex-wrap">
+              <span className="text-3xl md:text-4xl font-bold text-gradient">
+                ₹{product.sellingPrice.toLocaleString()}
+              </span>
+              {product.originalPrice && (
+                <>
+                  <span className="text-lg text-stone-400 line-through">
+                    ₹{product.originalPrice.toLocaleString()}
+                  </span>
+                </>
               )}
             </div>
+            {discount > 0 && (
+              <p className="text-sm text-emerald-600 mt-2 flex items-center gap-1">
+                <Sparkles className="h-4 w-4" />
+                You save ₹{(product.originalPrice! - product.sellingPrice).toLocaleString()} ({discount}% off)
+              </p>
+            )}
+          </div>
 
-            {/* Amazon Rating */}
-            {product.amazonRating && (
+          {/* Customer Reviews Summary */}
+          <div className="animate-fade-in-up animation-delay-225">
+            <ReviewList
+              reviews={[]}
+              averageRating={averageRating}
+              totalReviews={totalReviews}
+              ratingDistribution={ratingDistribution}
+            />
+          </div>
+
+          {/* Amazon Rating */}
+          {product.amazonRating && (
               <div className="animate-fade-in-up animation-delay-250 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
@@ -259,6 +346,39 @@ export default async function ProductPage({
                 Verified seller • Quick responses on WhatsApp
               </p>
             )}
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="premium-card p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-stone-900 mb-8 flex items-center gap-3">
+              <MessageCircle className="h-6 w-6 text-amber-500" />
+              Customer Reviews ({totalReviews})
+            </h2>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Review Form */}
+              <div>
+                <h3 className="text-lg font-semibold text-stone-900 mb-4">
+                  Write a Review
+                </h3>
+                <ReviewForm productId={product.id} />
+              </div>
+
+              {/* Reviews List */}
+              <div>
+                <h3 className="text-lg font-semibold text-stone-900 mb-4">
+                  All Reviews
+                </h3>
+              <ReviewList
+                reviews={reviews.map(r => ({ ...r, createdAt: r.createdAt.toISOString() }))}
+                averageRating={averageRating}
+                totalReviews={totalReviews}
+                ratingDistribution={ratingDistribution}
+              />
+              </div>
+            </div>
           </div>
         </div>
       </div>

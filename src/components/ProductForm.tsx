@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
+import ImageUploader from "./ImageUploader";
 
 interface ProductFormProps {
   product?: {
@@ -48,7 +49,6 @@ export default function ProductForm({ product, sellerId }: ProductFormProps) {
   const [images, setImages] = useState<string[]>(
     product ? JSON.parse(product.images || "[]") : []
   );
-  const [newImageUrl, setNewImageUrl] = useState("");
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [showCategoryInput, setShowCategoryInput] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -57,9 +57,10 @@ export default function ProductForm({ product, sellerId }: ProductFormProps) {
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((data: Category[]) => {
-        if (data && data.length > 0) {
-          const catNames = data.map((c) => c.name);
+      .then((data: { success?: boolean; data?: { custom?: Category[] } }) => {
+        const fetchedCategories = data.data?.custom || [];
+        if (fetchedCategories.length > 0) {
+          const catNames = fetchedCategories.map((c) => c.name);
           // Merge with defaults if not all there
           const allCats = [...new Set([...DEFAULT_CATEGORIES, ...catNames])];
           setCategories(allCats);
@@ -128,16 +129,7 @@ export default function ProductForm({ product, sellerId }: ProductFormProps) {
     }
   };
 
-  const addImage = () => {
-    if (newImageUrl && images.length < 10) {
-      setImages([...images, newImageUrl]);
-      setNewImageUrl("");
-    }
-  };
 
-  const removeImage = (idx: number) => {
-    setImages(images.filter((_, i) => i !== idx));
-  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -309,49 +301,22 @@ export default function ProductForm({ product, sellerId }: ProductFormProps) {
 
           {/* Images */}
           <div className="bg-white rounded-xl shadow-sm border p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Images</h2>
-
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                placeholder="Enter image URL..."
-                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
-              <button
-                type="button"
-                onClick={addImage}
-                disabled={!newImageUrl}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Add
-              </button>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Images</h2>
+              <span className="text-xs text-gray-500">
+                {images.length}/10 images
+              </span>
             </div>
 
-            {images.length > 0 && (
-              <div className="grid grid-cols-4 gap-4">
-                {images.map((img, idx) => (
-                  <div key={idx} className="relative group">
-                    <img
-                      src={img}
-                      alt={`Image ${idx + 1}`}
-                      className="w-full aspect-square object-cover rounded-lg border"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(idx)}
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ImageUploader
+              images={images}
+              onImagesChange={setImages}
+              maxImages={10}
+              disabled={loading}
+            />
 
             <p className="text-xs text-gray-500">
-              Add up to 10 images. Use direct image URLs.
+              Upload product images. First image will be the cover photo.
             </p>
           </div>
 

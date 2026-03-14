@@ -5,6 +5,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/yourusername/openbox-store/actions"><img src="https://img.shields.io/github/actions/workflow/status/yourusername/openbox-store/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status"></a>
   <a href="https://github.com/yourusername/openbox-store/stargazers"><img src="https://img.shields.io/github/stars/yourusername/openbox-store?style=flat-square&color=amber" alt="GitHub Stars"></a>
   <a href="https://github.com/yourusername/openbox-store/issues"><img src="https://img.shields.io/github/issues/yourusername/openbox-store?style=flat-square" alt="GitHub Issues"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/yourusername/openbox-store?style=flat-square&color=blue" alt="License"></a>
@@ -36,7 +37,7 @@
 
 ### 📊 AI-Powered Analytics
 - **Real-time Dashboard** - Live metrics with 30-second auto-refresh
-- **AI Assistant** - Chat with AI to get insights and manage inventory
+- **AI Intern Agent** - Chat + tool-calling actions (create products, adjust stock, update status/details with confirmation)
 - **Daily Reports** - Automated Excel replacement (9 AM daily)
 - **Smart Alerts** - Low stock warnings, trending products
 - **Visual Charts** - Orders, revenue, conversion tracking
