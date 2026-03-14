@@ -58,6 +58,8 @@ export async function createOrder(input: CreateOrderInput) {
         customerEmail,
         customerPhone,
         address,
+        subtotal: totalAmount,
+        discountAmount: 0,
         totalAmount,
         paymentMethod,
         sellerId,
