@@ -29,14 +29,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Only fetch settings if DATABASE_URL is available (not during build)
+  // Fetch settings
   let settings = null;
-  if (process.env.DATABASE_URL) {
-    try {
-      settings = await prisma.settings.findFirst();
-    } catch (error) {
-      console.error('Failed to fetch settings:', error);
-    }
+  try {
+    settings = await prisma.settings.findFirst();
+  } catch (error) {
+    console.error('Failed to fetch settings:', error);
   }
 
   return (

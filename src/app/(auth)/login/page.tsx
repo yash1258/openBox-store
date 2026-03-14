@@ -18,8 +18,8 @@ import Link from "next/link";
 // 4. Delete this comment block
 // =============================================================================
 
-// [DEV-BYPASS] Check if we're in development mode
-const isDev = process.env.NODE_ENV === 'development';
+// [DEV-BYPASS] Always show dev login for demo site
+const isDev = true;
 
 export default function LoginPage() {
   const router = useRouter();
